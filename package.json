@@ -1,0 +1,20 @@
+{
+  "name": "Naughts-and-Crosses",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulBunker/Naughts-and-Crosses.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PaulBunker/Naughts-and-Crosses/issues"
+  },
+  "homepage": "https://github.com/PaulBunker/Naughts-and-Crosses#readme"
+}
