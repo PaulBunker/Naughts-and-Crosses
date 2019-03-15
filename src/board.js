@@ -20,7 +20,7 @@ const WIN_CHECK_DIRECTIONS = {
   6: [[0, 1]]
 }
 
-class Board {
+export default class Board {
   constructor(state = null) {
     if( state === null){
       this.state = Array(BOARD_SIZE).fill(0)
@@ -35,12 +35,12 @@ class Board {
 
   static otherSide(side) {
     switch(side) {
-      case NAUGHT:
-        return CROSS
-      case CROSS:
-        return NAUGHT
-      default:
-        throw `${side} is not a valid side`
+    case NAUGHT:
+      return CROSS
+    case CROSS:
+      return NAUGHT
+    default:
+      throw `${side} is not a valid side`
     }
   }
 
@@ -79,7 +79,7 @@ class Board {
 
   move(position, side) {
     if (this.state[position] !== EMPTY)
-      throw "Invalid move"
+      throw 'Invalid move'
 
     this.state[position] = side
 
@@ -96,14 +96,14 @@ class Board {
   }
 
   applyDirection(position, direction) {
-    row = Math.floor(position / BOARD_DIM)
-    col = pos % 3
+    let row = Math.floor(position / BOARD_DIM)
+    let col = position % 3
     row += direction[0]
     if (row < 0 || row > 2)
-        throw "out of bounds"
+      throw 'out of bounds'
     col += direction[1]
     if (col < 0 || col > 2)
-        throw "out of bounds"
+      throw 'out of bounds'
 
     return row * 3 + col
   }
@@ -120,4 +120,74 @@ class Board {
     return false
   }
 
+  whoWon() {
+    for(var startPosition in WIN_CHECK_DIRECTIONS) {
+      if (this.state[startPosition] !== EMPTY) {
+        for (let i = 0; i < WIN_CHECK_DIRECTIONS[startPosition].length; i++) {
+          const direction = WIN_CHECK_DIRECTIONS[startPosition][i]
+          if(this.checkWinInDirection(startPosition, direction)){
+            return this.state[startPosition]
+          } 
+        }
+      }
+    }
+    return EMPTY
+  }
+
+  checkWin() {
+    for(var startPosition in WIN_CHECK_DIRECTIONS) {
+      if (this.state[startPosition] !== EMPTY) {
+        for (let i = 0; i < WIN_CHECK_DIRECTIONS[startPosition].length; i++) {
+          const direction = WIN_CHECK_DIRECTIONS[startPosition][i]
+          if(this.checkWinInDirection(startPosition, direction)){
+            return true
+          } 
+        }
+      }
+    }
+    return false
+  }
+
+  stateToChar(position, html=false) {
+    switch (position) {
+    case EMPTY:
+      return html ? ' ' : '&ensp'
+    case NAUGHT:
+      return 'o'
+    default:
+      return 'x'
+    }
+  }
+
+  htmlString() {
+    const data = this.stateToCharList(true)
+    const html = ''`
+      <table border="1">
+        ${data.map((row) => {
+    `<tr>${row.map((column)=>`<td>${column}</td>`)}</tr>`
+  })}
+      </table>
+    ```
+    return html
+  }
+
+  stateToCharList(html=false) {
+    const res = []
+    for (let i = 0; i < 3; i++) {
+      res.push([
+        this.stateToChar(i*3, html),
+        this.stateToChar(i*3 + 1, html),
+        this.stateToChar(i*3 + 2, html),
+      ])
+    }
+  }
+
+  printBoard() {
+    const charList = this.stateToChar(false)
+    for (let i = 0; i < charList.length; i++) {
+      const row = this.state[i]
+      console.log(`${row[0]}|${row[2]}|${row[2]}`)
+      row !== 2 && console.log('-----')
+    }
+  }
 }

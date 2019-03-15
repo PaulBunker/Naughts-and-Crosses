@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/PaulBunker/Naughts-and-Crosses/issues"
   },
-  "homepage": "https://github.com/PaulBunker/Naughts-and-Crosses#readme"
+  "homepage": "https://github.com/PaulBunker/Naughts-and-Crosses#readme",
+  "devDependencies": {
+    "eslint": "^5.15.1"
+  }
 }
