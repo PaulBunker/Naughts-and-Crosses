@@ -116,7 +116,9 @@ export default class Board {
       if (this.state[startPosition] !== EMPTY) {
         for (let i = 0; i < WIN_CHECK_DIRECTIONS[startPosition].length; i++) {
           const direction = WIN_CHECK_DIRECTIONS[startPosition][i]
+          
           if(this.checkWinInDirection(startPosition, direction)){
+            console.log(this.state[startPosition])
             return this.state[startPosition]
           } 
         }

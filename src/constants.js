@@ -1,13 +1,13 @@
-export const GAME_RESULT = {
-  NOT_FINISHED : 0,
-  NAUGHT_WIN : 1,
-  CROSS_WIN : 2,
-  DRAW : 3,
-}
-
 export const EMPTY = 0
 export const NAUGHT = 1
 export const CROSS = 2
+
+export const GAME_RESULT = {
+  NOT_FINISHED : 0,
+  NAUGHT_WIN : NAUGHT,
+  CROSS_WIN : CROSS,
+  DRAW : 3,
+}
 
 export const BOARD_DIM = 3
 export const BOARD_SIZE = BOARD_DIM * BOARD_DIM

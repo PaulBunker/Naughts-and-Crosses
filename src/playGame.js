@@ -15,7 +15,6 @@ export default (board, player1, player2) => {
 
   while(!finished){
     [result, finished] = player1.move(board)
-    board.printBoard()
     if(finished){
       if(result === GAME_RESULT.DRAW) {
         finalResult = GAME_RESULT.DRAW
@@ -24,12 +23,11 @@ export default (board, player1, player2) => {
       }
     } else {
       [result, finished] = player2.move(board)
-      board.printBoard()
       if(finished){
         if(result === GAME_RESULT.DRAW) {
           finalResult = GAME_RESULT.DRAW
         } else {
-          finalResult = GAME_RESULT.CROSS_WIN
+          finalResult = GAME_RESULT.NAUGHT_WIN
         }
       }
     }
