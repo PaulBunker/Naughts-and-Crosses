@@ -1,32 +1,24 @@
-const GAME_RESULT = {
-  NOT_FINISHED : 0,
-  NAUGHT_WIN : 1,
-  CROSS_WIN : 2,
-  DRAW : 3,
-}
-
-const EMPTY = 0
-const NAUGHT = 1
-const CROSS = 2
-
-const BOARD_DIM = 3
-const BOARD_SIZE = BOARD_DIM * BOARD_DIM
-
-const WIN_CHECK_DIRECTIONS = {
-  0: [[1, 1], [1, 0], [0, 1]],
-  1: [[1, 0]],
-  2: [[1, 0], [1, -1]],
-  3: [[0, 1]],
-  6: [[0, 1]]
-}
+import {
+  GAME_RESULT,
+  EMPTY,
+  NAUGHT,
+  CROSS,
+  BOARD_DIM,
+  BOARD_SIZE,
+  WIN_CHECK_DIRECTIONS
+} from './constants'
 
 export default class Board {
   constructor(state = null) {
-    if( state === null){
+    if( state === null) {
       this.state = Array(BOARD_SIZE).fill(0)
     } else {
-      self.state = Object.assign([], state) // make a copy
+      this.state = Object.assign([], state) // make a copy
     }
+  }
+
+  reset() {
+    this.state = Array(BOARD_SIZE).fill(0)
   }
 
   hashValue() {
@@ -61,10 +53,10 @@ export default class Board {
   }
 
   randomEmptySpot() {
-    const index = Math.floor(Math.random() * this.numEmpty())
+    let index = Math.floor(Math.random() * this.numEmpty())
     for (let i = 0; i < 9; i++) {
-      if(self.state[i] === EMPTY){
-        if (index == 0){
+      if(this.state[i] === EMPTY){
+        if (index === 0){
           return i
         } else {
           index--
@@ -74,25 +66,24 @@ export default class Board {
   }
 
   isLegal(pos) {
-    return (0 <= pos < BOARD_SIZE) && (self.state[pos] == EMPTY)
+    return (0 <= pos < BOARD_SIZE) && (this.state[pos] == EMPTY)
   }
 
   move(position, side) {
     if (this.state[position] !== EMPTY)
       throw 'Invalid move'
-
+    
     this.state[position] = side
-
     if(this.checkWin()) {
       const winner = side === CROSS ? GAME_RESULT.CROSS_WIN : GAME_RESULT.NAUGHT_WIN
       return [this.state, winner, true]
     }
 
-    if(this.numEmpty()) {
+    if(this.numEmpty() === 0) {
       return [this.state, GAME_RESULT.DRAW, true]
     }
-
     return [this.state, GAME_RESULT.NOT_FINISHED, false]
+    
   }
 
   applyDirection(position, direction) {
@@ -110,12 +101,12 @@ export default class Board {
 
   checkWinInDirection(position, direction) {
     const c = this.state[position]
-    if (self.state[position] === EMPTY) return false
-
+    if (this.state[position] === EMPTY) return false
+    
     const p1 = this.applyDirection(position, direction)
     const p2 = this.applyDirection(p1, direction)
 
-    if(c === this.state[p1] === this.state[p2]) return true
+    if(c === this.state[p1] && c === this.state[p2]) return true
 
     return false
   }
@@ -139,6 +130,7 @@ export default class Board {
       if (this.state[startPosition] !== EMPTY) {
         for (let i = 0; i < WIN_CHECK_DIRECTIONS[startPosition].length; i++) {
           const direction = WIN_CHECK_DIRECTIONS[startPosition][i]
+          
           if(this.checkWinInDirection(startPosition, direction)){
             return true
           } 
@@ -149,9 +141,9 @@ export default class Board {
   }
 
   stateToChar(position, html=false) {
-    switch (position) {
+    switch (this.state[position]) {
     case EMPTY:
-      return html ? ' ' : '&ensp'
+      return html ? '&ensp' : ' ' 
     case NAUGHT:
       return 'o'
     default:
@@ -180,14 +172,16 @@ export default class Board {
         this.stateToChar(i*3 + 2, html),
       ])
     }
+    return res
   }
 
   printBoard() {
-    const charList = this.stateToChar(false)
+    const charList = this.stateToCharList(false)
     for (let i = 0; i < charList.length; i++) {
-      const row = this.state[i]
-      console.log(`${row[0]}|${row[2]}|${row[2]}`)
-      row !== 2 && console.log('-----')
+      const row = charList[i]
+      console.log(`${row[0]}|${row[1]}|${row[2]}`)
+      i !== 2 && console.log('-----')
     }
+    console.log('')
   }
 }
