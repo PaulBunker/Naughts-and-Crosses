@@ -19,3 +19,9 @@ export const WIN_CHECK_DIRECTIONS = {
   3: [[0, 1]],
   6: [[0, 1]]
 }
+
+export const MIN_MAX = {
+  WIN: 1,
+  DRAW: 0,
+  LOSS: -1,
+}

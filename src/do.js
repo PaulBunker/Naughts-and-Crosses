@@ -1,5 +1,6 @@
 import Board from './board'
 import RandomPlayer from './randomPlayer'
+import MinMaxPlayer from './minMaxPlayer'
 import playGame from './playGame'
 import {
   GAME_RESULT,
@@ -8,15 +9,15 @@ import {
 } from './constants'
 
 
-const NUM_GAMES = 1000000
+const NUM_GAMES = 100000
 
 let drawCount = 0
 let crossCount = 0
 let naughtCount = 0
 
 const board = new Board()
+const player2 = new MinMaxPlayer()
 const player1 = new RandomPlayer()
-const player2 = new RandomPlayer()
 
 for (let game = 0; game < NUM_GAMES; game++) {
   const result = playGame(board, player1, player2)
@@ -42,5 +43,5 @@ const result = `
   draws : cross : naught of about ${Number(drawCount/NUM_GAMES*100).toFixed(2)}% : ${Number(crossCount/NUM_GAMES*100).toFixed(2)}% : ${Number(naughtCount/NUM_GAMES*100).toFixed(2)}%
 `
 
-console.log(result)
+console.log('result',result)
 

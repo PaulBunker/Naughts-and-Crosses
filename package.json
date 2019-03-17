@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "do": "babel-node ./src/do"
+    "do": "babel-node --inspect ./src/do"
   },
   "repository": {
     "type": "git",

@@ -22,10 +22,16 @@ export default class Board {
   }
 
   hashValue() {
-    //TODO: this
+    let res = 0
+    for (let i = 0; i < BOARD_SIZE; i++) {
+      res = res*3
+      res = res + this.state[i]
+    }
+    
+    return res
   }
 
-  static otherSide(side) {
+  otherSide(side) {
     switch(side) {
     case NAUGHT:
       return CROSS
@@ -118,7 +124,6 @@ export default class Board {
           const direction = WIN_CHECK_DIRECTIONS[startPosition][i]
           
           if(this.checkWinInDirection(startPosition, direction)){
-            console.log(this.state[startPosition])
             return this.state[startPosition]
           } 
         }
