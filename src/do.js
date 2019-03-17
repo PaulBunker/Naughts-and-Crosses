@@ -1,23 +1,23 @@
 import Board from './board'
 import RandomPlayer from './randomPlayer'
+import TQPlayer from './tabularQPlayer'
+import RandMinMaxPlayer from './randMinMaxPlayer'
 import MinMaxPlayer from './minMaxPlayer'
 import playGame from './playGame'
 import {
   GAME_RESULT,
-  CROSS,
-  NAUGHT,
 } from './constants'
 
 
-const NUM_GAMES = 100000
+const NUM_GAMES = 100
 
 let drawCount = 0
 let crossCount = 0
 let naughtCount = 0
 
 const board = new Board()
-const player2 = new MinMaxPlayer()
-const player1 = new RandomPlayer()
+const player1 = new TQPlayer()
+const player2 = new RandMinMaxPlayer()
 
 for (let game = 0; game < NUM_GAMES; game++) {
   const result = playGame(board, player1, player2)

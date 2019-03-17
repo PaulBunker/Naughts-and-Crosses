@@ -1,7 +1,12 @@
 import Board from './board'
 import { MIN_MAX, EMPTY } from './constants'
 
-export default class MinMaxPlayer {
+const randomChoice = arr => {
+  const len = arr == null ? 0 : arr.length
+  return len ? arr[Math.floor(Math.random() * len)] : undefined
+}
+
+export default class RandMinMaxPlayer {
   constructor(){
     this.side = null
     this.cache = {}
@@ -17,21 +22,18 @@ export default class MinMaxPlayer {
   min(board) {
     const boardHash = board.hashValue()
     if (this.cache.hasOwnProperty(boardHash)) {
-      return this.cache[boardHash]
+      return randomChoice(this.cache[boardHash])
     }
-    
-    let minValue = MIN_MAX.DRAW
-
-    let action = -1
-    
+    let bestMoves
     const winner = board.whoWon()
     if(winner === this.side){
-      minValue = MIN_MAX.WIN
-      action = -1  
+      bestMoves = [[MIN_MAX.WIN, -1]]
     } else if (winner === board.otherSide(this.side)) {
-      minValue = MIN_MAX.LOSS
-      action = -1  
-    } else {      
+      bestMoves = [[MIN_MAX.LOSS, -1]]
+    } else {  
+      let minValue = MIN_MAX.DRAW
+      let action = -1    
+      bestMoves = [[minValue, -1]]
       const legalMoves = []
       board.state.forEach(( cell, index ) => {
         if (cell === EMPTY) {
@@ -42,40 +44,37 @@ export default class MinMaxPlayer {
         const move = legalMoves[i]
         const b = new Board(board.state)
         b.move(move, board.otherSide(this.side))
-  
+
         const [ res, _ ] = this.max(b)
         if (res < minValue || action === -1) {
           minValue = res
           action = move
-  
-          if (minValue === MIN_MAX.LOSS){
-            this.cache[boardHash] = [minValue, action]
-            return [minValue, action]
-          }
+          bestMoves = [[minValue, action]]
+        } else if (res === minValue) {
+          action = move
+          bestMoves.push([minValue, action])
         }
-        this.cache[boardHash] = [minValue, action]
       }
     }
-    return [ minValue, action ]
+    this.cache[boardHash] = bestMoves
+    return randomChoice(bestMoves)
   }
 
   max(board) {
     const boardHash = board.hashValue()
     if (this.cache.hasOwnProperty(boardHash)) {
-      return this.cache[boardHash]
+      return randomChoice(this.cache[boardHash])
     }
-
-    let maxValue = MIN_MAX.DRAW
-    let action = -1
-
+    let bestMoves
     const winner = board.whoWon()
-    if (winner === this.side) {
-      maxValue = MIN_MAX.WIN
-      action = -1  
-    } else if (winner === board.otherSide(this.side)){
-      maxValue = MIN_MAX.LOSS
-      action = -1 
-    } else {
+    if(winner === this.side){
+      bestMoves = [[MIN_MAX.WIN, -1]]
+    } else if (winner === board.otherSide(this.side)) {
+      bestMoves = [[MIN_MAX.LOSS, -1]]
+    } else {  
+      let maxValue = MIN_MAX.DRAW
+      let action = -1    
+      bestMoves = [[maxValue, -1]]
       const legalMoves = []
       board.state.forEach(( cell, index ) => {
         if (cell === EMPTY) {
@@ -89,20 +88,17 @@ export default class MinMaxPlayer {
 
         const [ res, _ ] = this.min(b)
         if (res > maxValue || action === -1) {
-
           maxValue = res
           action = move
-
-          if (maxValue === MIN_MAX.WIN){
-            this.cache[boardHash] = [maxValue, action]
-            return [ maxValue, action ]
-          }
+          bestMoves = [[maxValue, action]]
+        } else if (res === maxValue) {
+          action = move
+          bestMoves.push([maxValue, action])
         }
-        this.cache[boardHash] = [ maxValue, action ]
       }
     }
-    return [ maxValue, action ]
-
+    this.cache[boardHash] = bestMoves
+    return randomChoice(bestMoves)
   }
 
   move(board) {
@@ -114,5 +110,4 @@ export default class MinMaxPlayer {
   finalResult() {
     return null
   }
-
 }

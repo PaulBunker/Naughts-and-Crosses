@@ -11,4 +11,8 @@ export default class RandomPlayer {
     const [ _, res, finished ] = board.move(board.randomEmptySpot(), this.side)
     return [ res, finished ]
   }
+
+  finalResult() {
+    return null
+  }
 }

@@ -34,7 +34,7 @@ export default (board, player1, player2) => {
   }
 
          
-  // player1.finalResult(finalResult)
-  // player2.finalResult(finalResult)
+  player1.finalResult(finalResult)
+  player2.finalResult(finalResult)
   return finalResult
 }

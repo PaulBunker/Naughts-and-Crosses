@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "do": "babel-node --inspect ./src/do"
+    "do": "babel-node --inspect ./src/do",
+    "eval": "babel-node --inspect ./src/evaluatePlayers"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
     "@babel/core": "^7.3.4",
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.3.4",
-    "eslint": "^5.15.1"
+    "eslint": "^5.15.1",
+    "matplotnode": "^0.3.0"
   }
 }
