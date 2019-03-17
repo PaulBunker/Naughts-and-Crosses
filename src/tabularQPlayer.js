@@ -8,7 +8,7 @@ const LOSS_VALUE = 0.0
 var argMax = (a) => a.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0)
 
 export default class TQPlayer {
-  constructor(alpha=0.5, gamma=0.95, q_init=0.6) {
+  constructor(alpha=0.5, gamma=0.94, q_init=0.6) {
     this.side = null
     this.q = {}  
     this.moveHistory = []  
@@ -18,10 +18,9 @@ export default class TQPlayer {
   }
 
   newGame(side) {
-    if(this.side !== side) {
-      this.side = side
-      this.move_history = []
-    }
+    this.side = side
+    this.moveHistory = []
+    console.log(this.moveHistory)
   }
 
   move(board) {
@@ -34,7 +33,6 @@ export default class TQPlayer {
   getMove(board) {
     const boardHash = board.hashValue()
     const qVals = this.getQ(boardHash)
-    console.log(qVals)
     while (true) {
       const move = argMax(qVals)
       if (board.isLegal(move)) {
@@ -67,6 +65,7 @@ export default class TQPlayer {
       (result === GAME_RESULT.NAUGHT_WIN && this.side === CROSS) ||
       (result === GAME_RESULT.CROSS_WIN && this.side === NAUGHT)
     ) {
+
       finalValue = LOSS_VALUE
     } else if (result === GAME_RESULT.DRAW) {
       finalValue = DRAW_VALUE
