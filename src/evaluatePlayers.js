@@ -62,5 +62,5 @@ const battle = (player1, player2, numGames=100) => {
 
 
 const player1 = new TQPlayer()
-const player2 = new RandomPlayer()
+const player2 = new RandMinMaxPlayer()
 evaluatePlayers(player1, player2, 100, 100)

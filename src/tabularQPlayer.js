@@ -20,7 +20,6 @@ export default class TQPlayer {
   newGame(side) {
     this.side = side
     this.moveHistory = []
-    console.log(this.moveHistory)
   }
 
   move(board) {
