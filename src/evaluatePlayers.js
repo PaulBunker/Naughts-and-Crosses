@@ -22,6 +22,11 @@ const evaluatePlayers = (player1, player2, numBattles, gamesPerBattle) => {
     p1Wins.push(p1win*100.0/gamesPerBattle)
     p2Wins.push(p2win*100.0/gamesPerBattle)
     draws.push(draw*100.0/gamesPerBattle)
+    count.push((i)*gamesPerBattle)
+    
+    p1Wins.push(p1win*100.0/gamesPerBattle)
+    p2Wins.push(p2win*100.0/gamesPerBattle)
+    draws.push(draw*100.0/gamesPerBattle)
     count.push((i+1)*gamesPerBattle)
     
   }
@@ -61,6 +66,6 @@ const battle = (player1, player2, numGames=100) => {
 }
 
 
-const player1 = new TQPlayer()
+const player1 = new RandMinMaxPlayer()
 const player2 = new RandMinMaxPlayer()
 evaluatePlayers(player1, player2, 100, 100)

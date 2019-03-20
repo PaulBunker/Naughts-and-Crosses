@@ -24,5 +24,8 @@
     "@babel/preset-env": "^7.3.4",
     "eslint": "^5.15.1",
     "matplotnode": "^0.3.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^1.0.1"
   }
 }
