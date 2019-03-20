@@ -8,7 +8,7 @@ export default (board, player1, player2) => {
   player1.newGame(CROSS)
   player2.newGame(NAUGHT)
   board.reset()
-    
+
   let finished = false
   let finalResult
   let result
@@ -33,8 +33,10 @@ export default (board, player1, player2) => {
     }
   }
 
-         
   player1.finalResult(finalResult)
   player2.finalResult(finalResult)
+
+
+
   return finalResult
 }
