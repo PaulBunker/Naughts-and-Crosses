@@ -68,4 +68,4 @@ const battle = (player1, player2, numGames=100) => {
 
 const player1 = new NNQPlayer()
 const player2 = new RandomPlayer()
-evaluatePlayers(player1, player2, 10, 20)
+evaluatePlayers(player1, player2, 10, 10)
