@@ -51,10 +51,10 @@ class NNModel {
   }
 }
 
-export default class NNQPlayer {
+export default class EGreedyNNQPlayer {
   constructor(
-    name = null, reward_discount = 0.95, win_value = 1.0, draw_value = 0.0,
-    loss_value = -1.0, learning_rate = 0.01, training = true
+    name = null, reward_discount = 0.95, win_value = 1.0, draw_value = 0.3,
+    loss_value = -1.0, learning_rate = 0.01, training = true, random_move_prob = 0.95, random_move_decrease = 0.95
   ) {
     this.reward_discount = reward_discount
     this.win_value = win_value
@@ -68,6 +68,8 @@ export default class NNQPlayer {
     this.name = name
     this.nn = new NNModel(learning_rate)
     this.training = training
+    this.random_move_prob = random_move_prob
+    this.random_move_decrease = random_move_decrease
   }
 
   boardToNNInput(state){
@@ -113,7 +115,13 @@ export default class NNQPlayer {
         probs[i] = -1
       }
     }
-    const move = tf.argMax(probs).dataSync()[0]
+
+    let move
+    if(this.training === true && Math.random() < this.random_move_prob) {
+      move = board.randomEmptySpot()
+    } else {
+      move = tf.argMax(probs).dataSync()[0]
+    }
 
     if (this.action_log.length > 0) this.next_max_log.push(qvalues[move])
     this.action_log.push(move)
@@ -145,6 +153,7 @@ export default class NNQPlayer {
     if(this.training) {
       const targets = this.calculateTargets()
       const inputs = this.board_position_log.map(x => this.boardToNNInput(x))
+      this.random_move_prob *= this.random_move_decrease
       return this.nn.train(inputs, targets)
     }
   }

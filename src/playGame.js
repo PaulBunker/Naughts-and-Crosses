@@ -4,7 +4,7 @@ import {
   CROSS,
 } from './constants'
 
-export default (board, player1, player2) => {
+export default async(board, player1, player2) => {
   player1.newGame(CROSS)
   player2.newGame(NAUGHT)
   board.reset()
@@ -33,8 +33,9 @@ export default (board, player1, player2) => {
     }
   }
 
-  player1.finalResult(finalResult)
-  player2.finalResult(finalResult)
+  
+  await player2.finalResult(finalResult)
+  await player1.finalResult(finalResult)
 
 
 

@@ -5,6 +5,9 @@ import TQPlayer from './tabularQPlayer'
 import RandMinMaxPlayer from './randMinMaxPlayer'
 import MinMaxPlayer from './minMaxPlayer'
 import NNQPlayer from './NNQPlayer'
+import EGreedyNNQPlayer from './EGreedyNNQPlayer'
+
+EGreedyNNQPlayer
 import playGame from './playGame'
 import {
   GAME_RESULT,
@@ -12,14 +15,14 @@ import {
 
 
 
-const evaluatePlayers = (player1, player2, numBattles, gamesPerBattle) => {
+const evaluatePlayers = async(player1, player2, numBattles, gamesPerBattle) => {
   const p1Wins = []
   const p2Wins = []
   const draws = []
   const count = []
 
   for (let i = 0; i < numBattles; i++) {
-    const [p1win, p2win, draw] = battle(player1, player2, gamesPerBattle)
+    const [p1win, p2win, draw] = await battle(player1, player2, gamesPerBattle)
     p1Wins.push(p1win*100.0/gamesPerBattle)
     p2Wins.push(p2win*100.0/gamesPerBattle)
     draws.push(draw*100.0/gamesPerBattle)
@@ -42,14 +45,14 @@ const evaluatePlayers = (player1, player2, numBattles, gamesPerBattle) => {
   plt.show()
 }
 
-const battle = (player1, player2, numGames=100) => {
+const battle = async(player1, player2, numGames=100) => {
   const board = new Board()
   let drawCount = 0
   let crossCount = 0
   let naughtCount = 0
 
   for (let game = 0; game < numGames; game++) {
-    const result = playGame(board, player1, player2)
+    const result = await playGame(board, player1, player2)
     switch (result) {
     case GAME_RESULT.CROSS_WIN:
       crossCount++
@@ -66,6 +69,6 @@ const battle = (player1, player2, numGames=100) => {
   return [crossCount, naughtCount, drawCount]
 }
 
-const player1 = new NNQPlayer()
-const player2 = new RandomPlayer()
-evaluatePlayers(player1, player2, 10, 10)
+const player2 = new EGreedyNNQPlayer()
+const player1 = new RandMinMaxPlayer()
+evaluatePlayers(player1, player2, 1000, 50)
