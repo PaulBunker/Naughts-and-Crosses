@@ -90,6 +90,7 @@ export default class NNQPlayer {
     const targets = []
     for (let i = 0; i < this.action_log.length; i++) {
       const target = [...this.values_log[i]]
+      console.log(this.reward_discount * this.next_max_log[i])
       target[this.action_log[i]] = this.reward_discount * this.next_max_log[i]
       targets.push(target)
     }

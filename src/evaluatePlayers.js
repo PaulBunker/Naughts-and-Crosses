@@ -5,6 +5,9 @@ import TQPlayer from './tabularQPlayer'
 import RandMinMaxPlayer from './randMinMaxPlayer'
 import MinMaxPlayer from './minMaxPlayer'
 import NNQPlayer from './NNQPlayer'
+import NNQPlayerModified from './NNQPlayerModified'
+
+import ExpDoubleDuelQPlayer from './ExpDoubleDuelQPlayer'
 import EGreedyNNQPlayer from './EGreedyNNQPlayer'
 
 EGreedyNNQPlayer
@@ -69,6 +72,6 @@ const battle = async(player1, player2, numGames=100) => {
   return [crossCount, naughtCount, drawCount]
 }
 
-const player2 = new EGreedyNNQPlayer()
-const player1 = new RandMinMaxPlayer()
-evaluatePlayers(player1, player2, 1000, 50)
+const player2 = new RandomPlayer()
+const player1 = new NNQPlayer()
+evaluatePlayers(player1, player2, 1000, 10)
