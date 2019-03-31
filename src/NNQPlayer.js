@@ -13,6 +13,68 @@ const otherSide = (side) => {
   }
 }
 
+
+class ValuePlusAdvantage extends tf.layers.Layer {
+  constructor() {
+    super({})
+  }
+  computeOutputShape(inputShape) { 
+    return [inputShape[1]] 
+  }
+
+  call(input) { return input[0].add(input[1].sub(input[1].mean())) }
+ 
+  getClassName() { return 'ValuePlusAdvantage' }
+}
+class NNModell {
+  constructor(learning_rate){
+    this.learning_rate = learning_rate
+    this.model = this.compileModel()
+  }
+
+  compileModel() {
+
+    const input = tf.input({shape:[BOARD_SIZE * 3]})
+
+    const hidden = tf.layers.dense({
+      units: BOARD_SIZE * 3 * 9,
+      activation: 'relu',
+      kernelInitializer: 'varianceScaling',
+      name: 'hidden'
+    }).apply(input)
+
+    const advantage = tf.layers.dense({
+      units: BOARD_SIZE,
+      name: 'advantage',
+      kernelInitializer: 'varianceScaling',
+    }).apply(hidden)
+
+    const value = tf.layers.dense({
+      units: 1,
+      name: 'value',
+      kernelInitializer: 'varianceScaling',
+    }).apply(hidden)
+
+    const output = new ValuePlusAdvantage().apply([value, advantage])
+
+    const model = tf.model({
+      inputs: input, 
+      outputs: output
+    })
+    
+    const optimizer = tf.train.adam(this.learningRate)
+
+    model.compile({
+      optimizer,
+      loss: 'meanSquaredError',
+    })
+    return model
+  }
+
+  async train(inputs, targets) {
+    return await this.model.fit( tf.tensor(inputs), tf.tensor(targets),{verbose:1}).then(history => history)
+  }
+}
 class NNModel {
   constructor(learning_rate){
     this.learning_rate = learning_rate
@@ -26,13 +88,18 @@ class NNModel {
       activation: 'relu',
     })
 
+    const input2 = tf.layers.dense({
+      units: BOARD_SIZE * 3 * 9,
+      activation: 'relu',
+    })
+
     const output = tf.layers.dense({
       units: BOARD_SIZE,
     })
 
     const model = tf.sequential({
       layers: [
-        input,
+        input, input2,
         output,
       ]
     })
@@ -90,7 +157,6 @@ export default class NNQPlayer {
     const targets = []
     for (let i = 0; i < this.action_log.length; i++) {
       const target = [...this.values_log[i]]
-      console.log(this.reward_discount * this.next_max_log[i])
       target[this.action_log[i]] = this.reward_discount * this.next_max_log[i]
       targets.push(target)
     }
@@ -108,6 +174,7 @@ export default class NNQPlayer {
     const probs = tf.softmax(qvalues).dataSync()
 
     qvalues = qvalues.dataSync()
+    console.log(qvalues)
 
     for (let i = 0; i < qvalues.length; i++) {
       if(!board.isLegal(i)){

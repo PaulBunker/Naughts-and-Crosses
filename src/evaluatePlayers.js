@@ -6,6 +6,7 @@ import RandMinMaxPlayer from './randMinMaxPlayer'
 import MinMaxPlayer from './minMaxPlayer'
 import NNQPlayer from './NNQPlayer'
 import NNQPlayerModified from './NNQPlayerModified'
+import SimplePolicyPlayer from './SimplePolicyPlayer'
 
 import ExpDoubleDuelQPlayer from './ExpDoubleDuelQPlayer'
 import EGreedyNNQPlayer from './EGreedyNNQPlayer'
@@ -73,5 +74,5 @@ const battle = async(player1, player2, numGames=100) => {
 }
 
 const player2 = new RandomPlayer()
-const player1 = new NNQPlayer()
-evaluatePlayers(player1, player2, 1000, 10)
+const player1 = new SimplePolicyPlayer()
+evaluatePlayers(player1, player2, 300, 10)
