@@ -54,12 +54,14 @@ class NNModel {
   }
 }
 
-export default class SimplePolicyPlayer {
-  constructor(winValue = 1.0, drawValue = 0, lossValue = -1.0    ) {
+export default class EGreedyPolicyPlayer {
+  constructor(winValue = 1.0, drawValue = 0, lossValue = -1.0, random_move_prob = 0.999, random_move_decrease = 0.99 ) {
     this.NN = new NNModel()
-    this.winValue = winValue,
-    this.drawValue = drawValue,
+    this.winValue = winValue
+    this.drawValue = drawValue
     this.lossValue = lossValue
+    this.random_move_prob = random_move_prob
+    this.random_move_decrease = random_move_decrease
   }
 
   newGame(side) {
@@ -88,7 +90,12 @@ export default class SimplePolicyPlayer {
         }
       }
 
-      const move = tf.argMax(probs).dataSync()[0]
+      let move
+      if(Math.random() < this.random_move_prob) {
+        move = board.randomEmptySpot()
+      } else {
+        move = tf.argMax(probs).dataSync()[0]
+      }
       return move
     })
   }
@@ -125,8 +132,9 @@ export default class SimplePolicyPlayer {
       reward = reward * 0.95
     })
     rewards.reverse()
-    // console.log(this.actions, rewards, this.boards)
     this.NN.train(this.actions, rewards, this.boards)
+    this.random_move_prob *= this.random_move_decrease
+    console.log(this.random_move_prob)
     return null
   }
 }

@@ -33,7 +33,6 @@ export default async(board, player1, player2) => {
     }
   }
 
-  
   await player2.finalResult(finalResult)
   await player1.finalResult(finalResult)
 
