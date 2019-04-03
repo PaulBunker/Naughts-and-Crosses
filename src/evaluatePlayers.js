@@ -7,14 +7,18 @@ import MinMaxPlayer from './minMaxPlayer'
 import NNQPlayer from './NNQPlayer'
 import NNQPlayerModified from './NNQPlayerModified'
 import SimplePolicyPlayer from './SimplePolicyPlayer'
+import SimplePolicyPlayer2D from './SimplePolicyPlayer2D'
+
 import ExpDoubleDuelQPlayer from './ExpDoubleDuelQPlayer'
 import EGreedyNNQPlayer from './EGreedyNNQPlayer'
 import EGreedyPolicyPlayer from './EGreedyPolicyPlayer'
+import EGreedyExpPolicyPlayer from './EGreedyExpPolicyPlayer'
 
 import playGame from './playGame'
 import {
   GAME_RESULT, MIN_MAX,
 } from './constants'
+import { minimumStrict } from '@tensorflow/tfjs'
 
 
 
@@ -72,6 +76,8 @@ const battle = async(player1, player2, numGames=100) => {
   return [crossCount, naughtCount, drawCount]
 }
 
-const player2 = new MinMaxPlayer()
-const player1 = new SimplePolicyPlayer()
-evaluatePlayers(player1, player2, 50, 10)
+const player1 = new SimplePolicyPlayer2D()
+const player2 = new RandMinMaxPlayer()
+evaluatePlayers(player1, player2, 40, 10)
+
+

@@ -12,6 +12,39 @@ const otherSide = (side) => {
   }
 }
 
+function getRandom(arr, n) {
+  var result = new Array(n),
+    len = arr.length,
+    taken = new Array(len)
+  if (n > len)
+    throw new RangeError('getRandom: more elements taken than available')
+  while (n--) {
+    var x = Math.floor(Math.random() * len)
+    result[n] = arr[x in taken ? taken[x] : x]
+    taken[x] = --len in taken ? taken[len] : len
+  }
+  return result
+}
+
+class ReplayBuffer {
+  constructor(buffer_size=1000) {
+    this.buffer_size = buffer_size
+    this.buffer = []
+  }
+
+  add(experience){
+    if (this.buffer.length + experience.length >= this.buffer_size){
+      this.buffer.shift()
+    }
+    this.buffer.push(experience)
+  }
+
+  sample(size){
+    const minSize = Math.min(this.buffer.length, size)
+    return getRandom(this.buffer, minSize)
+  }
+}
+
 class NNModel {
   constructor(learning_rate = 0.001){
     this.learning_rate = learning_rate
@@ -19,7 +52,7 @@ class NNModel {
   }
 
   train(actions, rewards, boards) {
-    const optimizer = tf.train.rmsprop(this.learning_rate, 0.999)
+    const optimizer = tf.train.adam(this.learning_rate, 0.99)
     const oneHotLabels = tf.oneHot(actions, BOARD_SIZE)
     const loss = optimizer.minimize(() => {
       return tf.tidy(() => {
@@ -43,7 +76,7 @@ class NNModel {
         inputShape: [BOARD_SIZE * 3]
       })
     )
-    
+
     model.add(
       tf.layers.dense({
         units: BOARD_SIZE,
@@ -54,12 +87,24 @@ class NNModel {
   }
 }
 
-export default class SimplePolicyPlayer {
-  constructor(winValue = 2.0, drawValue = 0.5, lossValue = 0 ) {
+export default class EGreedyExpPolicyPlayer {
+  constructor(
+    preTrainingGames = 500, 
+    winValue = 1, 
+    drawValue = 0.5, 
+    lossValue = 0, 
+    batchSize = 50, 
+  ) {
     this.NN = new NNModel()
-    this.winValue = winValue,
-    this.drawValue = drawValue,
+    this.winValue = winValue
+    this.drawValue = drawValue
     this.lossValue = lossValue
+    this.replay_buffer_win = new ReplayBuffer()
+    this.replay_buffer_loss = new ReplayBuffer()
+    this.replay_buffer_draw = new ReplayBuffer()
+    this.gameCounter = 0
+    this.preTrainingGames = preTrainingGames
+    this.batchSize = batchSize
   }
 
   newGame(side) {
@@ -107,7 +152,58 @@ export default class SimplePolicyPlayer {
     return [ res, finished ]
   }
 
+  addGameToReplayBuffer(reward){
+    let buffer
+    switch (reward) {
+    case this.winValue:
+      buffer = this.replay_buffer_win
+      break
+    case this.lossValue:
+      buffer = this.replay_buffer_loss
+      break
+    case this.drawValue:
+      buffer = this.replay_buffer_draw
+      break
+    default:
+      throw('oops')
+    }
+    //TODO this is inefficient 
+    const rewards = []
+    this.actions.forEach(()=>{
+      rewards.push(reward)
+      reward = reward * 0.95
+    })
+    rewards.reverse()
+
+    this.actions.forEach((a, i) => {
+      buffer.add([a, rewards[i], this.boards[i]])      
+    })
+  }
+
+  getTrainingBatch() {
+    const batchThird = Math.floor(this.batchSize/3)
+    const trainBatch = [
+      ...this.replay_buffer_win.sample(batchThird),
+      ...this.replay_buffer_loss.sample(batchThird),
+      ...this.replay_buffer_draw.sample(batchThird),
+    ]
+    const actions = []
+    const boards = []
+    const rewards = []
+
+    trainBatch.forEach(([a,r,b])=>{
+      actions.push(a)
+      rewards.push(r)
+      boards.push(b)
+    })
+
+    return [actions, rewards, boards]
+
+  }
+
   finalResult(result) {
+    this.gameCounter += 1
+    console.log(this.gameCounter)
     let reward
     if(
       (result === GAME_RESULT.NAUGHT_WIN && this.side === NAUGHT) ||
@@ -118,20 +214,17 @@ export default class SimplePolicyPlayer {
       (result === GAME_RESULT.NAUGHT_WIN && this.side === CROSS) ||
       (result === GAME_RESULT.CROSS_WIN && this.side === NAUGHT)
     ) {
-
       reward = this.lossValue
     } else if (result === GAME_RESULT.DRAW) {
       reward = this.drawValue
     }
+    this.addGameToReplayBuffer(reward)
 
-    const rewards = []
-    this.actions.forEach(()=>{
-      rewards.push(reward)
-      reward = reward * 0.5
-    })
-    rewards.reverse()
-    // console.log(this.actions, rewards, this.boards)
-    this.NN.train(this.actions, rewards, this.boards)
+    if(this.gameCounter > this.preTrainingGames) {
+      const [actions, rewards, boards] = this.getTrainingBatch()
+      this.NN.train(actions, rewards, boards)
+    }
+
     return null
   }
 }

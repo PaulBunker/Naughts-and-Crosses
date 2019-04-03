@@ -13,7 +13,7 @@ const otherSide = (side) => {
 }
 
 class NNModel {
-  constructor(learning_rate = 0.01){
+  constructor(learning_rate = 0.001){
     this.learning_rate = learning_rate
     this.model = this.createModel()
   }
@@ -55,7 +55,7 @@ class NNModel {
 }
 
 export default class EGreedyPolicyPlayer {
-  constructor(winValue = 1.0, drawValue = 0, lossValue = -1.0, random_move_prob = 0.999, random_move_decrease = 0.99 ) {
+  constructor(winValue = 1.0, drawValue = 0.5, lossValue = 0, random_move_prob = 0.99, random_move_decrease = 0.99 ) {
     this.NN = new NNModel()
     this.winValue = winValue
     this.drawValue = drawValue

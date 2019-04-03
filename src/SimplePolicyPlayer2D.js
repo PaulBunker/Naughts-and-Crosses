@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-node'
-import { BOARD_SIZE, GAME_RESULT, EMPTY, NAUGHT, CROSS} from './constants'
+import { BOARD_SIZE, GAME_RESULT, EMPTY, NAUGHT, CROSS, BOARD_DIM} from './constants'
 
 const otherSide = (side) => {
   switch(side) {
@@ -19,7 +19,8 @@ class NNModel {
   }
 
   train(actions, rewards, boards) {
-    const optimizer = tf.train.rmsprop(this.learning_rate, 0.999)
+    console.log('train')
+    const optimizer = tf.train.rmsprop(this.learning_rate, 0.99)
     const oneHotLabels = tf.oneHot(actions, BOARD_SIZE)
     const loss = optimizer.minimize(() => {
       return tf.tidy(() => {
@@ -36,14 +37,52 @@ class NNModel {
   createModel() {
     const model = tf.sequential()
 
+    // model.add(
+    //   tf.layers.conv2d({
+    //     kernelSize: [3,3],
+    //     filters: 128,
+    //     units: BOARD_SIZE * 3 * 9,
+    //     activation: 'relu',
+    //     inputShape: [BOARD_DIM, 3, 3]
+    //   })
+    // )
+
+    model.add(tf.layers.conv2d({
+      inputShape: [BOARD_DIM, 3, 3],
+      kernelSize: [3,3],
+      filters: 128,
+      strides: 3,
+      activation: 'relu',
+      kernelInitializer: 'varianceScaling'
+    }))
+  
+    // The MaxPooling layer acts as a sort of downsampling using max values
+    // in a region instead of averaging.  
+    model.add(tf.layers.maxPooling2d({poolSize: [3, 3], strides: [3, 3]}))
+    // model.add(
+    //   tf.layers.conv2d({
+    //     kernelSize: [3,3],
+    //     filters: 128,
+    //     units: BOARD_SIZE * 3 * 9,
+    //     activation: 'relu',
+    //   })
+    // )
+    // model.add(
+    //   tf.layers.conv2d({
+    //     kernelSize: [3,3],
+    //     filters: 64,
+    //     units: BOARD_SIZE * 3 * 9,
+    //     activation: 'relu',
+    //   })
+    // )
     model.add(
       tf.layers.dense({
         units: BOARD_SIZE * 3 * 9,
         activation: 'relu',
-        inputShape: [BOARD_SIZE * 3]
       })
     )
-    
+      
+    model.add(tf.layers.flatten())
     model.add(
       tf.layers.dense({
         units: BOARD_SIZE,
@@ -55,7 +94,7 @@ class NNModel {
 }
 
 export default class SimplePolicyPlayer {
-  constructor(winValue = 2.0, drawValue = 0.5, lossValue = 0 ) {
+  constructor(winValue = 1.0, drawValue = 0.5, lossValue = 0 ) {
     this.NN = new NNModel()
     this.winValue = winValue,
     this.drawValue = drawValue,
@@ -69,32 +108,29 @@ export default class SimplePolicyPlayer {
   }
 
   boardToNNInput(state){
-    return [
-      ...state.map((space) => space === this.side ? 1 : 0 ),
-      ...state.map((space) => space === otherSide(this.side) ? 1 : 0 ),
-      ...state.map((space) => space === EMPTY ? 1 : 0 ),
-    ]
+    const nnState = [[],[],[]]
+    const step1 = state.map((space) => tf.oneHot(space, 3).dataSync(0))
+    step1.forEach(( space, i) => {
+      nnState[Math.floor(i / BOARD_DIM)].push(space)
+    })
+    return nnState
   }
 
   getLegalMove(nnInput, board) {
     return tf.tidy(() => {
       const logits = this.NN.model.predict(tf.tensor([nnInput])).dataSync().filter((e,i) => board.isLegal(i))
-
-
-      if(this.gameCounter < this.preTrainingGames) {
-        return board.randomEmptySpot()
-      } else {
-        let index = logits.length === 1 ? 0 : tf.multinomial(tf.tensor(logits), 1).dataSync()[0]
-        for (let i = 0; i < 9; i++) {
-          if(board.state[i] === EMPTY){
-            if (index === 0){
-              return i
-            } else {
-              index--
-            }
+      this.NN.model.predict(tf.tensor([nnInput])).dataSync()
+      let index = logits.length === 1 ? 0 : tf.multinomial(tf.tensor(logits), 1).dataSync()[0]
+      for (let i = 0; i < 9; i++) {
+        if(board.state[i] === EMPTY){
+          if (index === 0){
+            return i
+          } else {
+            index--
           }
         }
       }
+      
     })
   }
 
